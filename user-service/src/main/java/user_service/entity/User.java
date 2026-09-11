@@ -1,5 +1,6 @@
 package user_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -18,6 +19,13 @@ public class User {
     private String email;
 
     @Column(nullable = false)
+    private String role;
+
+    @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String password;
+
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     @PrePersist
@@ -28,9 +36,11 @@ public class User {
     public User() {
     }
 
-    public User(String fullName, String email) {
+    public User(String fullName, String email, String role, String password) {
         this.fullName = fullName;
         this.email = email;
+        this.role = role;
+        this.password = password;
     }
 
     public Long getId() {
@@ -55,6 +65,22 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public LocalDateTime getCreatedAt() {
