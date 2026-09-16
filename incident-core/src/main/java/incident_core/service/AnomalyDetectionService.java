@@ -22,6 +22,7 @@ public class AnomalyDetectionService {
     private final ServiceRepository serviceRepository;
     private final LogEntryRepository logEntryRepository;
     private final AnomalyRepository anomalyRepository;
+    private final ServiceStatusService serviceStatusService;
 
     private final Elevated5xxRule elevated5xxRule =
             new Elevated5xxRule();
@@ -38,11 +39,13 @@ public class AnomalyDetectionService {
     public AnomalyDetectionService(
             ServiceRepository serviceRepository,
             LogEntryRepository logEntryRepository,
-            AnomalyRepository anomalyRepository) {
+            AnomalyRepository anomalyRepository,
+            ServiceStatusService serviceStatusService) {
 
         this.serviceRepository = serviceRepository;
         this.logEntryRepository = logEntryRepository;
         this.anomalyRepository = anomalyRepository;
+        this.serviceStatusService = serviceStatusService;
     }
 
     public Anomaly detectElevated5xx(
@@ -79,7 +82,15 @@ public class AnomalyDetectionService {
                 (double) elevated5xxRule.getThreshold()
         );
 
-        return anomalyRepository.save(anomaly);
+        Anomaly savedAnomaly =
+                anomalyRepository.save(anomaly);
+
+        serviceStatusService.updateStatus(
+                service,
+                AnomalyType.ELEVATED_5XX
+        );
+
+        return savedAnomaly;
     }
 
     public Anomaly detectSlowResponse(
@@ -116,7 +127,15 @@ public class AnomalyDetectionService {
                 slowResponseRule.getThreshold()
         );
 
-        return anomalyRepository.save(anomaly);
+        Anomaly savedAnomaly =
+                anomalyRepository.save(anomaly);
+
+        serviceStatusService.updateStatus(
+                service,
+                AnomalyType.SLOW_RESPONSE
+        );
+
+        return savedAnomaly;
     }
 
     public Anomaly detectDbFailure(
@@ -152,7 +171,15 @@ public class AnomalyDetectionService {
                 1.0
         );
 
-        return anomalyRepository.save(anomaly);
+        Anomaly savedAnomaly =
+                anomalyRepository.save(anomaly);
+
+        serviceStatusService.updateStatus(
+                service,
+                AnomalyType.DB_FAILURE
+        );
+
+        return savedAnomaly;
     }
 
     public Anomaly detectRedisFailure(
@@ -188,6 +215,14 @@ public class AnomalyDetectionService {
                 1.0
         );
 
-        return anomalyRepository.save(anomaly);
+        Anomaly savedAnomaly =
+                anomalyRepository.save(anomaly);
+
+        serviceStatusService.updateStatus(
+                service,
+                AnomalyType.REDIS_FAILURE
+        );
+
+        return savedAnomaly;
     }
 }
