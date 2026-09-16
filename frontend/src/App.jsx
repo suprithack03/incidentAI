@@ -44,6 +44,10 @@ function App() {
   const [statusUpdateError, setStatusUpdateError] =
     useState("");
 
+  const [rca, setRca] = useState("");
+  const [rcaLoading, setRcaLoading] = useState(false);
+  const [rcaError, setRcaError] = useState("");
+
   const incidentDetailsRef = useRef(null);
 
   const handleLogin = (loginData) => {
@@ -215,6 +219,8 @@ function App() {
     setSelectedIncidentAnomalies([]);
     setAnomaliesError("");
     setStatusUpdateError("");
+    setRca("");
+    setRcaError("");
   };
 
   const changeIncidentView = (view) => {
@@ -271,6 +277,42 @@ function App() {
         );
 
         setAnomaliesLoading(false);
+      });
+  };
+
+  const loadRca = (incidentId) => {
+    setRcaLoading(true);
+    setRcaError("");
+    setRca("");
+
+    fetch(
+      `http://localhost:8084/api/incidents/${incidentId}/rca`,
+      {
+        headers: getAuthHeaders(),
+      }
+    )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        return response.json();
+      })
+      .then((data) => {
+        setRca(data.rca || "");
+        setRcaLoading(false);
+      })
+      .catch((err) => {
+        console.error(
+          "Incident RCA request error:",
+          err
+        );
+
+        setRcaError(
+          `Unable to generate RCA. ${err.message}`
+        );
+
+        setRcaLoading(false);
       });
   };
 
@@ -416,6 +458,8 @@ function App() {
   ) => {
     setSelectedIncident(incident);
     setStatusUpdateError("");
+    setRca("");
+    setRcaError("");
     loadIncidentAnomalies(
       incident.id
     );
@@ -971,6 +1015,45 @@ function App() {
               </p>
             )}
 
+            <div className="rca-section">
+              <div className="anomalies-header">
+                <h3>
+                  Root Cause Analysis
+                </h3>
+              </div>
+
+              <button
+                onClick={() =>
+                  loadRca(
+                    selectedIncident.id
+                  )
+                }
+                disabled={rcaLoading}
+              >
+                {rcaLoading
+                  ? "Generating RCA..."
+                  : "Generate RCA"}
+              </button>
+
+              {rcaError && (
+                <p>{rcaError}</p>
+              )}
+
+              {rca && (
+                <div
+                  className="rca-result"
+                  style={{
+                    marginTop: "16px",
+                    padding: "16px",
+                    whiteSpace: "pre-wrap",
+                    lineHeight: "1.6",
+                  }}
+                >
+                  {rca}
+                </div>
+              )}
+            </div>
+
             <div className="anomalies-section">
               <div className="anomalies-header">
                 <h3>
@@ -1135,3 +1218,4 @@ function App() {
 }
 
 export default App;
+
