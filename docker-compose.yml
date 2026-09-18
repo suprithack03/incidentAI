@@ -1,0 +1,88 @@
+services:
+
+  postgres:
+    image: pgvector/pgvector:pg17
+    container_name: incidentai-postgres
+    environment:
+      POSTGRES_DB: incidentai
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    container_name: incidentai-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  user-service:
+    image: incidentai-user-service:latest
+    container_name: incidentai-user-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/incidentai
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: 6379
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+    ports:
+      - "8081:8080"
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+  payment-service:
+    image: incidentai-payment-service:latest
+    container_name: incidentai-payment-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/incidentai
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+    ports:
+      - "8082:8080"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  inventory-service:
+    image: incidentai-inventory-service:latest
+    container_name: incidentai-inventory-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/incidentai
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+    ports:
+      - "8083:8080"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  incident-core:
+    image: incidentai-incident-core:latest
+    container_name: incidentai-incident-core
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/incidentai
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
