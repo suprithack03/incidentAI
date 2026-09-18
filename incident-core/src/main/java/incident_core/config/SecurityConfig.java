@@ -48,6 +48,21 @@ public class SecurityConfig {
                 // Public health check
                 .requestMatchers("/api/health").permitAll()
 
+                // Temporary embedding test endpoint
+                .requestMatchers("/api/test/embedding").permitAll()
+
+                // Temporary runbook loading endpoint
+                .requestMatchers("/api/test/load-runbooks").permitAll()
+
+                // Temporary historical incident loading endpoint
+                .requestMatchers("/api/test/load-historical-incidents").permitAll()
+
+                // Temporary RAG retrieval test endpoint
+                .requestMatchers("/api/test/rag-retrieval").permitAll()
+
+                // Temporary RAG context test endpoint
+                .requestMatchers("/api/test/rag-context").permitAll()
+
                 // Internal log ingestion uses its own token filter
                 .requestMatchers("/api/logs/ingest").permitAll()
 
@@ -73,4 +88,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-

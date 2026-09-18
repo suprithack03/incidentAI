@@ -26,25 +26,20 @@ function App() {
   const [serviceFilter, setServiceFilter] = useState("ALL");
   const [incidentView, setIncidentView] = useState("ALL");
 
-  const [selectedIncident, setSelectedIncident] =
-    useState(null);
+  const [selectedIncident, setSelectedIncident] = useState(null);
 
   const [selectedIncidentAnomalies, setSelectedIncidentAnomalies] =
     useState([]);
 
-  const [anomaliesLoading, setAnomaliesLoading] =
-    useState(false);
+  const [anomaliesLoading, setAnomaliesLoading] = useState(false);
 
-  const [anomaliesError, setAnomaliesError] =
-    useState("");
+  const [anomaliesError, setAnomaliesError] = useState("");
 
-  const [statusUpdating, setStatusUpdating] =
-    useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
-  const [statusUpdateError, setStatusUpdateError] =
-    useState("");
+  const [statusUpdateError, setStatusUpdateError] = useState("");
 
-  const [rca, setRca] = useState("");
+  const [rca, setRca] = useState(null);
   const [rcaLoading, setRcaLoading] = useState(false);
   const [rcaError, setRcaError] = useState("");
 
@@ -219,7 +214,7 @@ function App() {
     setSelectedIncidentAnomalies([]);
     setAnomaliesError("");
     setStatusUpdateError("");
-    setRca("");
+    setRca(null);
     setRcaError("");
   };
 
@@ -283,7 +278,7 @@ function App() {
   const loadRca = (incidentId) => {
     setRcaLoading(true);
     setRcaError("");
-    setRca("");
+    setRca(null);
 
     fetch(
       `http://localhost:8084/api/incidents/${incidentId}/rca`,
@@ -293,13 +288,15 @@ function App() {
     )
       .then((response) => {
         if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+          throw new Error(
+            `HTTP ${response.status}`
+          );
         }
 
         return response.json();
       })
       .then((data) => {
-        setRca(data.rca || "");
+        setRca(data.rca || null);
         setRcaLoading(false);
       })
       .catch((err) => {
@@ -458,7 +455,7 @@ function App() {
   ) => {
     setSelectedIncident(incident);
     setStatusUpdateError("");
-    setRca("");
+    setRca(null);
     setRcaError("");
     loadIncidentAnomalies(
       incident.id
@@ -1045,11 +1042,85 @@ function App() {
                   style={{
                     marginTop: "16px",
                     padding: "16px",
-                    whiteSpace: "pre-wrap",
                     lineHeight: "1.6",
                   }}
                 >
-                  {rca}
+                  <div>
+                    <strong>
+                      Probable Cause
+                    </strong>
+
+                    <p>
+                      {rca.probableCause}
+                    </p>
+                  </div>
+
+                  <div>
+                    <strong>
+                      Affected Service
+                    </strong>
+
+                    <p>
+                      {rca.affectedService}
+                    </p>
+                  </div>
+
+                  <div>
+                    <strong>
+                      Confidence
+                    </strong>
+
+                    <p>
+                      {rca.confidence}
+                    </p>
+                  </div>
+
+                  <div>
+                    <strong>
+                      Supporting Evidence
+                    </strong>
+
+                    {rca.supportingEvidence &&
+                    rca.supportingEvidence.length >
+                      0 ? (
+                      <ul>
+                        {rca.supportingEvidence.map(
+                          (
+                            evidence,
+                            index
+                          ) => (
+                            <li
+                              key={
+                                index
+                              }
+                            >
+                              {
+                                evidence
+                              }
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    ) : (
+                      <p>
+                        No supporting
+                        evidence
+                        available.
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <strong>
+                      Recommended Remediation
+                    </strong>
+
+                    <p>
+                      {
+                        rca.recommendedRemediation
+                      }
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -1218,4 +1289,3 @@ function App() {
 }
 
 export default App;
-

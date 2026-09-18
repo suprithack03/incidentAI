@@ -3,12 +3,12 @@ package incident_core.dto;
 public class RcaResponse {
 
     private Long incidentId;
-    private String rca;
+    private StructuredRca rca;
 
     public RcaResponse() {
     }
 
-    public RcaResponse(Long incidentId, String rca) {
+    public RcaResponse(Long incidentId, StructuredRca rca) {
         this.incidentId = incidentId;
         this.rca = rca;
     }
@@ -21,12 +21,11 @@ public class RcaResponse {
         this.incidentId = incidentId;
     }
 
-    public String getRca() {
+    public StructuredRca getRca() {
         return rca;
     }
 
-    public void setRca(String rca) {
+    public void setRca(StructuredRca rca) {
         this.rca = rca;
     }
 }
-

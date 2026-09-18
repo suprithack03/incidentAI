@@ -12,7 +12,7 @@ function Login({ onLogin }) {
     setLoading(true);
     setError("");
 
-    fetch("http://localhost:8081/api/auth/login", {
+    fetch("http://localhost:8080/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -79,3 +79,4 @@ function Login({ onLogin }) {
 }
 
 export default Login;
+
